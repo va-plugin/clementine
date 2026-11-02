@@ -1,0 +1,972 @@
+<!--
+  Shell styles. Builds on the shared palette in Clementine.Wheel/Themes/Colors.xaml (merged first by App.xaml).
+  Dark, warm, minimal: 8 px corners on cards, 6 px on controls, 1 px #33FFFFFF strokes, quick ease-out motion.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="pack://application:,,,/Clementine.Wheel;component/Themes/Colors.xaml" />
+  </ResourceDictionary.MergedDictionaries>
+
+  <!-- ===== Surfaces ===== -->
+  <!-- Window background stops. Never paint with this brush directly: WPF draws it without dithering and the slow,
+       dark ramp shows 8-bit bands. ShellTheme.ApplyWindow draws it through DitheredGradient / WindowBackdrop. -->
+  <LinearGradientBrush x:Key="Shell.WindowBackground" StartPoint="0,0" EndPoint="1,1">
+    <GradientStop Offset="0" Color="#FF2A2420" />
+    <GradientStop Offset="0.45" Color="#FF201D1B" />
+    <GradientStop Offset="1" Color="#FF1A1817" />
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="Shell.Card" Color="#0EFFFFFF" />
+  <SolidColorBrush x:Key="Shell.CardHover" Color="#18FFFFFF" />
+  <SolidColorBrush x:Key="Shell.CardPressed" Color="#0AFFFFFF" />
+  <SolidColorBrush x:Key="Shell.CardStroke" Color="#1CFFFFFF" />
+  <SolidColorBrush x:Key="Shell.Divider" Color="#1AFFFFFF" />
+  <SolidColorBrush x:Key="Shell.Input" Color="#FF171513" />
+  <SolidColorBrush x:Key="Shell.Popup" Color="#FF2B2724" />
+  <!-- Opaque on purpose: at 95 % the desktop behind (often a smooth wallpaper) showed through as 1-level steps. -->
+  <SolidColorBrush x:Key="Shell.GlassCard" Color="#FF211E1C" />
+  <SolidColorBrush x:Key="Shell.OnAccent" Color="#FF1F1306" />
+  <SolidColorBrush x:Key="Shell.Warning" Color="#FFFFC048" />
+  <SolidColorBrush x:Key="Shell.AccentSoft" Color="#26FF8A1F" />
+  <SolidColorBrush x:Key="Shell.LeafSoft" Color="#2643A047" />
+  <SolidColorBrush x:Key="Shell.ErrorSoft" Color="#26FF5F56" />
+  <SolidColorBrush x:Key="Shell.Transparent" Color="Transparent" />
+  <FontFamily x:Key="Shell.MonoFont">Cascadia Mono, Consolas</FontFamily>
+
+  <DropShadowEffect x:Key="Shell.Shadow" BlurRadius="28" ShadowDepth="6" Direction="270" Opacity="0.5" Color="#000000" />
+  <DropShadowEffect x:Key="Shell.SoftShadow" BlurRadius="16" ShadowDepth="2" Direction="270" Opacity="0.35" Color="#000000" />
+
+  <CubicEase x:Key="Shell.EaseOut" EasingMode="EaseOut" />
+
+  <!-- ===== Text ===== -->
+  <Style x:Key="Shell.Title" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource Clementine.DisplayFont}" />
+    <Setter Property="FontSize" Value="22" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+  </Style>
+  <Style x:Key="Shell.Heading" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource Clementine.DisplayFont}" />
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+  </Style>
+  <Style x:Key="Shell.Body" TargetType="TextBlock">
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style x:Key="Shell.Caption" TargetType="TextBlock">
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Foreground" Value="{StaticResource Clementine.TextSecondary}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style x:Key="Shell.SectionLabel" TargetType="TextBlock">
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{StaticResource Clementine.TextSecondary}" />
+    <Setter Property="Margin" Value="2,0,0,8" />
+  </Style>
+  <Style x:Key="Shell.Glyph" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource Clementine.IconFont}" />
+    <Setter Property="FontSize" Value="16" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="TextOptions.TextRenderingMode" Value="Grayscale" />
+  </Style>
+
+  <!-- ===== Focus ===== -->
+  <Style x:Key="Shell.FocusVisual">
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Border Margin="-3" CornerRadius="8" BorderThickness="2" BorderBrush="{StaticResource Clementine.AccentLight}" SnapsToDevicePixels="True" />
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ===== Cards ===== -->
+  <Style x:Key="Shell.CardBorder" TargetType="Border">
+    <Setter Property="Background" Value="{StaticResource Shell.Card}" />
+    <Setter Property="BorderBrush" Value="{StaticResource Shell.CardStroke}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="16,12" />
+    <Setter Property="SnapsToDevicePixels" Value="True" />
+  </Style>
+  <Style x:Key="Shell.Popover" TargetType="Border">
+    <Setter Property="Background" Value="{StaticResource Shell.GlassCard}" />
+    <Setter Property="BorderBrush" Value="{StaticResource Clementine.Stroke}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="Effect" Value="{StaticResource Shell.Shadow}" />
+    <Setter Property="SnapsToDevicePixels" Value="True" />
+  </Style>
+
+  <!-- ===== Buttons ===== -->
+  <Style x:Key="Shell.ButtonBase" TargetType="ButtonBase">
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Shell.FocusVisual}" />
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+    <Setter Property="Background" Value="#14FFFFFF" />
+    <Setter Property="BorderBrush" Value="#24FFFFFF" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Padding" Value="14,6" />
+    <Setter Property="MinHeight" Value="32" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="SnapsToDevicePixels" Value="True" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ButtonBase">
+          <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="#1FFFFFFF" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="#0CFFFFFF" />
+              <Setter Property="Foreground" Value="{StaticResource Clementine.TextSecondary}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Foreground" Value="{StaticResource Clementine.TextDisabled}" />
+              <Setter TargetName="Bd" Property="Background" Value="#0AFFFFFF" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style TargetType="Button" BasedOn="{StaticResource Shell.ButtonBase}" />
+  <Style x:Key="Shell.Button" TargetType="Button" BasedOn="{StaticResource Shell.ButtonBase}" />
+
+  <Style x:Key="Shell.PrimaryButton" TargetType="Button" BasedOn="{StaticResource Shell.ButtonBase}">
+    <Setter Property="Foreground" Value="{StaticResource Shell.OnAccent}" />
+    <Setter Property="Background" Value="{StaticResource Clementine.AccentGradient}" />
+    <Setter Property="BorderBrush" Value="#33FFFFFF" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Padding" Value="18,6" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Grid>
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" />
+            <Border x:Name="Shine" CornerRadius="6" Background="#22FFFFFF" Opacity="0" />
+            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Shine" Property="Opacity" Value="1" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="{StaticResource Clementine.AccentDeep}" />
+              <Setter TargetName="Shine" Property="Opacity" Value="0" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="Bd" Property="Background" Value="#1AFFFFFF" />
+              <Setter TargetName="Bd" Property="BorderBrush" Value="Transparent" />
+              <Setter Property="Foreground" Value="{StaticResource Clementine.TextDisabled}" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Shell.SubtleButton" TargetType="Button" BasedOn="{StaticResource Shell.ButtonBase}">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Padding" Value="10,4" />
+  </Style>
+
+  <Style x:Key="Shell.LinkButton" TargetType="Button" BasedOn="{StaticResource Shell.ButtonBase}">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Foreground" Value="{StaticResource Clementine.AccentLight}" />
+    <Setter Property="Padding" Value="6,2" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <Style x:Key="Shell.IconButton" TargetType="Button" BasedOn="{StaticResource Shell.ButtonBase}">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Foreground" Value="{StaticResource Clementine.TextSecondary}" />
+    <Setter Property="FontFamily" Value="{StaticResource Clementine.IconFont}" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Width" Value="28" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="TextOptions.TextRenderingMode" Value="Grayscale" />
+    <!-- The content is an icon-font glyph, which screen readers can't read: announce the tool tip instead. -->
+    <Setter Property="AutomationProperties.Name" Value="{Binding ToolTip, RelativeSource={RelativeSource Self}}" />
+  </Style>
+
+  <Style x:Key="Shell.ChipButton" TargetType="Button" BasedOn="{StaticResource Shell.ButtonBase}">
+    <Setter Property="Padding" Value="9,2" />
+    <Setter Property="MinHeight" Value="24" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Background" Value="#12FFFFFF" />
+    <Setter Property="BorderBrush" Value="#1FFFFFFF" />
+    <Setter Property="Margin" Value="0,0,6,6" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="1" CornerRadius="12" Padding="{TemplateBinding Padding}">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="{StaticResource Shell.AccentSoft}" />
+              <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Clementine.Accent}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Foreground" Value="{StaticResource Clementine.TextDisabled}" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ===== Text input ===== -->
+  <Style x:Key="Shell.InputBase" TargetType="Control">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+    <Setter Property="Background" Value="{StaticResource Shell.Input}" />
+    <Setter Property="BorderBrush" Value="{StaticResource Clementine.Stroke}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Padding" Value="9,6" />
+    <Setter Property="MinHeight" Value="32" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="SnapsToDevicePixels" Value="True" />
+  </Style>
+
+  <Style TargetType="TextBox" BasedOn="{StaticResource Shell.InputBase}">
+    <Setter Property="CaretBrush" Value="{StaticResource Clementine.AccentLight}" />
+    <Setter Property="SelectionBrush" Value="{StaticResource Clementine.Accent}" />
+    <Setter Property="SelectionOpacity" Value="0.45" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="TextBox">
+          <Grid>
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" />
+            <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" CornerRadius="0,0,6,6" Margin="1,0"
+                    Background="{StaticResource Clementine.AccentGradient}" Opacity="0" />
+            <ScrollViewer x:Name="PART_ContentHost" Focusable="False"
+                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="{TemplateBinding VerticalScrollBarVisibility}"
+                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+            <TextBlock x:Name="Placeholder" Text="{TemplateBinding Tag}" Margin="{TemplateBinding Padding}" Padding="2,0,0,0"
+                       Foreground="{StaticResource Clementine.TextDisabled}" IsHitTestVisible="False"
+                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Visibility="Collapsed" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="Text" Value="" />
+                <Condition Property="IsKeyboardFocused" Value="False" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="Placeholder" Property="Visibility" Value="Visible" />
+            </MultiTrigger>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bd" Property="BorderBrush" Value="#4DFFFFFF" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+              <Setter TargetName="Bd" Property="BorderBrush" Value="#55FFFFFF" />
+              <Setter TargetName="Underline" Property="Opacity" Value="1" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Foreground" Value="{StaticResource Clementine.TextDisabled}" />
+              <Setter TargetName="Bd" Property="Background" Value="#0AFFFFFF" />
+            </Trigger>
+            <Trigger Property="Validation.HasError" Value="True">
+              <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Clementine.Error}" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style TargetType="PasswordBox" BasedOn="{StaticResource Shell.InputBase}">
+    <Setter Property="CaretBrush" Value="{StaticResource Clementine.AccentLight}" />
+    <Setter Property="SelectionBrush" Value="{StaticResource Clementine.Accent}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="PasswordBox">
+          <Grid>
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" />
+            <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" CornerRadius="0,0,6,6" Margin="1,0"
+                    Background="{StaticResource Clementine.AccentGradient}" Opacity="0" />
+            <ScrollViewer x:Name="PART_ContentHost" Focusable="False"
+                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bd" Property="BorderBrush" Value="#4DFFFFFF" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+              <Setter TargetName="Bd" Property="BorderBrush" Value="#55FFFFFF" />
+              <Setter TargetName="Underline" Property="Opacity" Value="1" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ===== Toggle switch (CheckBox) ===== -->
+  <Style x:Key="Shell.Toggle" TargetType="CheckBox">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Shell.FocusVisual}" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="CheckBox">
+          <Grid Background="Transparent">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid Width="40" Height="20" VerticalAlignment="Center">
+              <Border x:Name="Track" CornerRadius="10" BorderThickness="1" BorderBrush="#A6FFFFFF" Background="#0FFFFFFF" />
+              <Border x:Name="TrackOn" CornerRadius="10" Background="{StaticResource Clementine.AccentGradient}" Opacity="0" />
+              <Ellipse x:Name="Knob" Width="12" Height="12" Fill="#D9FFFFFF" HorizontalAlignment="Left" Margin="4,0,0,0">
+                <Ellipse.RenderTransform>
+                  <TranslateTransform x:Name="KnobShift" X="0" />
+                </Ellipse.RenderTransform>
+              </Ellipse>
+            </Grid>
+            <ContentPresenter Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="KnobShift" Storyboard.TargetProperty="X" To="20" Duration="0:0:0.12" EasingFunction="{StaticResource Shell.EaseOut}" />
+                    <DoubleAnimation Storyboard.TargetName="TrackOn" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.12" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="KnobShift" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.12" EasingFunction="{StaticResource Shell.EaseOut}" />
+                    <DoubleAnimation Storyboard.TargetName="TrackOn" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.12" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.ExitActions>
+              <Setter TargetName="Knob" Property="Fill" Value="{StaticResource Shell.OnAccent}" />
+              <Setter TargetName="Track" Property="BorderBrush" Value="Transparent" />
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Knob" Property="Width" Value="14" />
+              <Setter TargetName="Knob" Property="Height" Value="14" />
+              <Setter TargetName="Knob" Property="Margin" Value="3,0,0,0" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.45" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Plain check box -->
+  <Style TargetType="CheckBox">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Shell.FocusVisual}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="CheckBox">
+          <Grid Background="Transparent">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border x:Name="Box" Width="18" Height="18" CornerRadius="4" BorderThickness="1" BorderBrush="#A6FFFFFF" Background="#0FFFFFFF">
+              <TextBlock x:Name="Mark" Text="&#xE73E;" Style="{StaticResource Shell.Glyph}" FontSize="12" Foreground="{StaticResource Shell.OnAccent}" Visibility="Collapsed" />
+            </Border>
+            <ContentPresenter Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Box" Property="Background" Value="{StaticResource Clementine.AccentGradient}" />
+              <Setter TargetName="Box" Property="BorderBrush" Value="Transparent" />
+              <Setter TargetName="Mark" Property="Visibility" Value="Visible" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ===== Radio buttons ===== -->
+  <Style TargetType="RadioButton">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Shell.FocusVisual}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <Grid Background="Transparent">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid Width="20" Height="20" VerticalAlignment="Center">
+              <Ellipse x:Name="Ring" Stroke="#A6FFFFFF" StrokeThickness="1" Fill="#0FFFFFFF" />
+              <Ellipse x:Name="Dot" Width="8" Height="8" Fill="{StaticResource Shell.OnAccent}" Visibility="Collapsed" />
+            </Grid>
+            <ContentPresenter Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Ring" Property="Fill" Value="{StaticResource Clementine.AccentGradient}" />
+              <Setter TargetName="Ring" Property="Stroke" Value="Transparent" />
+              <Setter TargetName="Dot" Property="Visibility" Value="Visible" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Segmented control segment (put RadioButtons in a UniformGrid inside a Shell.SegmentHost border) -->
+  <Style x:Key="Shell.SegmentHost" TargetType="Border">
+    <Setter Property="Background" Value="{StaticResource Shell.Input}" />
+    <Setter Property="BorderBrush" Value="{StaticResource Clementine.Stroke}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="Padding" Value="2" />
+  </Style>
+  <Style x:Key="Shell.Segment" TargetType="RadioButton">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.TextSecondary}" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="MinHeight" Value="28" />
+    <Setter Property="Padding" Value="10,4" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Shell.FocusVisual}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <Border x:Name="Bd" CornerRadius="5" Background="Transparent" Padding="{TemplateBinding Padding}">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="#14FFFFFF" />
+              <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="{StaticResource Clementine.AccentGradient}" />
+              <Setter Property="Foreground" Value="{StaticResource Shell.OnAccent}" />
+              <Setter Property="FontWeight" Value="SemiBold" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Tab-like toggle (Convert / Tools / Actions) -->
+  <Style x:Key="Shell.Tab" TargetType="RadioButton">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.TextSecondary}" />
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Margin" Value="0,0,22,0" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Shell.FocusVisual}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <Grid Background="Transparent">
+            <ContentPresenter Margin="0,4,0,10" HorizontalAlignment="Center" />
+            <Border x:Name="Bar" Height="3" CornerRadius="1.5" VerticalAlignment="Bottom" Width="18"
+                    Background="{StaticResource Clementine.AccentGradient}" Opacity="0" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+              <Setter Property="FontWeight" Value="SemiBold" />
+              <Setter TargetName="Bar" Property="Opacity" Value="1" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Settings navigation item -->
+  <Style x:Key="Shell.NavItem" TargetType="RadioButton">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Height" Value="36" />
+    <Setter Property="Margin" Value="0,0,0,2" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Shell.FocusVisual}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <Grid>
+            <Border x:Name="Bd" CornerRadius="6" Background="Transparent" />
+            <Border x:Name="Pill" Width="3" Height="16" CornerRadius="1.5" HorizontalAlignment="Left"
+                    Background="{StaticResource Clementine.AccentGradient}" Opacity="0" />
+            <ContentPresenter Margin="14,0,10,0" VerticalAlignment="Center" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="#0FFFFFFF" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="#17FFFFFF" />
+              <Setter TargetName="Pill" Property="Opacity" Value="1" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Modifier key toggle (Shift / Ctrl / Alt / Win) -->
+  <Style x:Key="Shell.KeyToggle" TargetType="ToggleButton">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.TextSecondary}" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="MinWidth" Value="48" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="Margin" Value="0,0,6,0" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Shell.FocusVisual}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ToggleButton">
+          <Border x:Name="Bd" CornerRadius="6" BorderThickness="1" BorderBrush="{StaticResource Clementine.Stroke}" Background="{StaticResource Shell.Input}" Padding="10,0">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bd" Property="BorderBrush" Value="#66FFFFFF" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="{StaticResource Shell.AccentSoft}" />
+              <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Clementine.Accent}" />
+              <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+              <Setter Property="FontWeight" Value="SemiBold" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Keyboard key cap (display only) -->
+  <Style x:Key="Shell.KeyCap" TargetType="Border">
+    <Setter Property="Background" Value="#1AFFFFFF" />
+    <Setter Property="BorderBrush" Value="#33FFFFFF" />
+    <Setter Property="BorderThickness" Value="1,1,1,2" />
+    <Setter Property="CornerRadius" Value="5" />
+    <Setter Property="Padding" Value="7,1" />
+    <Setter Property="Margin" Value="0,0,4,0" />
+  </Style>
+
+  <!-- ===== Slider ===== -->
+  <Style x:Key="Shell.SliderRepeat" TargetType="RepeatButton">
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="IsTabStop" Value="False" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RepeatButton">
+          <Grid Background="Transparent">
+            <Border Height="4" CornerRadius="2" Background="{TemplateBinding Background}" />
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="Shell.SliderThumb" TargetType="Thumb">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Thumb">
+          <Grid Width="20" Height="20" Background="Transparent">
+            <Ellipse Fill="#FF3A3531" Stroke="#40FFFFFF" StrokeThickness="1" />
+            <Ellipse x:Name="Core" Width="10" Height="10" Fill="{StaticResource Clementine.AccentGradient}" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Core" Property="Width" Value="13" />
+              <Setter TargetName="Core" Property="Height" Value="13" />
+            </Trigger>
+            <Trigger Property="IsDragging" Value="True">
+              <Setter TargetName="Core" Property="Width" Value="8" />
+              <Setter TargetName="Core" Property="Height" Value="8" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style TargetType="Slider">
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="IsMoveToPointEnabled" Value="True" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Slider">
+          <Grid MinHeight="24" Background="Transparent">
+            <Track x:Name="PART_Track" VerticalAlignment="Center">
+              <Track.DecreaseRepeatButton>
+                <RepeatButton Style="{StaticResource Shell.SliderRepeat}" Background="{StaticResource Clementine.AccentGradient}" Command="Slider.DecreaseLarge" />
+              </Track.DecreaseRepeatButton>
+              <Track.IncreaseRepeatButton>
+                <RepeatButton Style="{StaticResource Shell.SliderRepeat}" Background="#33FFFFFF" Command="Slider.IncreaseLarge" />
+              </Track.IncreaseRepeatButton>
+              <Track.Thumb>
+                <Thumb Style="{StaticResource Shell.SliderThumb}" />
+              </Track.Thumb>
+            </Track>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.4" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ===== Progress bar ===== -->
+  <Style TargetType="ProgressBar">
+    <Setter Property="Height" Value="4" />
+    <Setter Property="Foreground" Value="{StaticResource Clementine.AccentGradient}" />
+    <Setter Property="Background" Value="#26FFFFFF" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ProgressBar">
+          <Grid x:Name="Root" ClipToBounds="True" SnapsToDevicePixels="True">
+            <VisualStateManager.VisualStateGroups>
+              <VisualStateGroup x:Name="CommonStates">
+                <VisualState x:Name="Determinate" />
+                <VisualState x:Name="Indeterminate">
+                  <Storyboard RepeatBehavior="Forever">
+                    <DoubleAnimation Storyboard.TargetName="Runner" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                     From="-120" To="420" Duration="0:0:1.4" />
+                  </Storyboard>
+                </VisualState>
+              </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+            <Border x:Name="PART_Track" CornerRadius="2" Background="{TemplateBinding Background}" />
+            <Border x:Name="PART_Indicator" CornerRadius="2" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left" />
+            <Border x:Name="Runner" Width="110" CornerRadius="2" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left" Visibility="Collapsed">
+              <Border.RenderTransform>
+                <TranslateTransform X="-120" />
+              </Border.RenderTransform>
+            </Border>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsIndeterminate" Value="True">
+              <Setter TargetName="Runner" Property="Visibility" Value="Visible" />
+              <Setter TargetName="PART_Indicator" Property="Visibility" Value="Collapsed" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ===== Scroll bars ===== -->
+  <Style x:Key="Shell.ScrollThumb" TargetType="Thumb">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Thumb">
+          <Border x:Name="Bd" CornerRadius="3" Background="#40FFFFFF" />
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="#70FFFFFF" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="Shell.ScrollPage" TargetType="RepeatButton">
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="IsTabStop" Value="False" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RepeatButton">
+          <Border Background="Transparent" />
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style TargetType="ScrollBar">
+    <Setter Property="Width" Value="8" />
+    <Setter Property="MinWidth" Value="8" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ScrollBar">
+          <Track x:Name="PART_Track" IsDirectionReversed="True" Margin="1,2">
+            <Track.DecreaseRepeatButton>
+              <RepeatButton Style="{StaticResource Shell.ScrollPage}" Command="ScrollBar.PageUpCommand" />
+            </Track.DecreaseRepeatButton>
+            <Track.IncreaseRepeatButton>
+              <RepeatButton Style="{StaticResource Shell.ScrollPage}" Command="ScrollBar.PageDownCommand" />
+            </Track.IncreaseRepeatButton>
+            <Track.Thumb>
+              <Thumb Style="{StaticResource Shell.ScrollThumb}" />
+            </Track.Thumb>
+          </Track>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Style.Triggers>
+      <Trigger Property="Orientation" Value="Horizontal">
+        <Setter Property="Width" Value="Auto" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="Height" Value="8" />
+        <Setter Property="MinHeight" Value="8" />
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="ScrollBar">
+              <Track x:Name="PART_Track" Margin="2,1">
+                <Track.DecreaseRepeatButton>
+                  <RepeatButton Style="{StaticResource Shell.ScrollPage}" Command="ScrollBar.PageLeftCommand" />
+                </Track.DecreaseRepeatButton>
+                <Track.IncreaseRepeatButton>
+                  <RepeatButton Style="{StaticResource Shell.ScrollPage}" Command="ScrollBar.PageRightCommand" />
+                </Track.IncreaseRepeatButton>
+                <Track.Thumb>
+                  <Thumb Style="{StaticResource Shell.ScrollThumb}" />
+                </Track.Thumb>
+              </Track>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+
+  <!-- ===== ComboBox ===== -->
+  <Style x:Key="Shell.ComboToggle" TargetType="ToggleButton">
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ToggleButton">
+          <Border Background="Transparent" />
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style TargetType="ComboBoxItem">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+    <Setter Property="Padding" Value="10,6" />
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ComboBoxItem">
+          <Grid Margin="2,1">
+            <Border x:Name="Bd" CornerRadius="5" Background="Transparent" />
+            <Border x:Name="Pill" Width="3" Height="14" CornerRadius="1.5" HorizontalAlignment="Left"
+                    Background="{StaticResource Clementine.AccentGradient}" Visibility="Collapsed" />
+            <ContentPresenter Margin="{TemplateBinding Padding}" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsHighlighted" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="#17FFFFFF" />
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+              <Setter TargetName="Pill" Property="Visibility" Value="Visible" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style TargetType="ComboBox" BasedOn="{StaticResource Shell.InputBase}">
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Shell.FocusVisual}" />
+    <Setter Property="Background" Value="#14FFFFFF" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ComboBox">
+          <Grid>
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6" />
+            <ToggleButton Style="{StaticResource Shell.ComboToggle}"
+                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
+            <ContentPresenter Margin="{TemplateBinding Padding}" IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Left"
+                              Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                              ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" />
+            <TextBlock Text="&#xE70D;" Style="{StaticResource Shell.Glyph}" FontSize="10" HorizontalAlignment="Right" Margin="0,0,11,0"
+                       Foreground="{StaticResource Clementine.TextSecondary}" IsHitTestVisible="False" />
+            <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True"
+                   Focusable="False" PopupAnimation="Fade" VerticalOffset="4">
+              <Border MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                      Background="{StaticResource Shell.Popup}" BorderBrush="{StaticResource Clementine.Stroke}" BorderThickness="1" CornerRadius="8" Padding="2,4"
+                      Margin="0,0,10,10" Effect="{StaticResource Shell.SoftShadow}">
+                <ScrollViewer>
+                  <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                </ScrollViewer>
+              </Border>
+            </Popup>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="#1FFFFFFF" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+              <Setter TargetName="Bd" Property="BorderBrush" Value="#66FFFFFF" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ===== Tool tip ===== -->
+  <Style TargetType="ToolTip">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="HasDropShadow" Value="False" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ToolTip">
+          <Border Background="{StaticResource Shell.Popup}" BorderBrush="{StaticResource Clementine.Stroke}" BorderThickness="1"
+                  CornerRadius="6" Padding="9,6" MaxWidth="320">
+            <ContentPresenter>
+              <ContentPresenter.Resources>
+                <Style TargetType="TextBlock">
+                  <Setter Property="TextWrapping" Value="Wrap" />
+                </Style>
+              </ContentPresenter.Resources>
+            </ContentPresenter>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ===== Context menu (tray) ===== -->
+  <Style TargetType="ContextMenu">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+    <Setter Property="FontFamily" Value="{StaticResource Clementine.Font}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="HasDropShadow" Value="False" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ContextMenu">
+          <Border Background="{StaticResource Shell.Popup}" BorderBrush="{StaticResource Clementine.Stroke}" BorderThickness="1"
+                  CornerRadius="8" Padding="4" MinWidth="220" Margin="0,0,12,12" Effect="{StaticResource Shell.SoftShadow}">
+            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style TargetType="MenuItem">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+    <Setter Property="Height" Value="34" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="MenuItem">
+          <Border x:Name="Bd" CornerRadius="5" Background="Transparent" Padding="10,0,14,0">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="28" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <ContentPresenter ContentSource="Icon" VerticalAlignment="Center" HorizontalAlignment="Left" />
+              <ContentPresenter Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True" />
+              <TextBlock Grid.Column="2" Text="{TemplateBinding InputGestureText}" Foreground="{StaticResource Clementine.TextSecondary}"
+                         FontSize="12" VerticalAlignment="Center" Margin="16,0,0,0" />
+            </Grid>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsHighlighted" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="#17FFFFFF" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Foreground" Value="{StaticResource Clementine.TextDisabled}" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style TargetType="Separator">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Separator">
+          <Border Height="1" Margin="8,4" Background="{StaticResource Shell.Divider}" />
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ===== Lists ===== -->
+  <Style x:Key="Shell.PlainListItem" TargetType="ListBoxItem">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ListBoxItem">
+          <Border x:Name="Bd" CornerRadius="6" Background="Transparent" Padding="8,6" Margin="0,0,0,2">
+            <ContentPresenter />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="#10FFFFFF" />
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="#17FFFFFF" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style TargetType="ListBox">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Foreground" Value="{StaticResource Clementine.Text}" />
+    <Setter Property="ItemContainerStyle" Value="{StaticResource Shell.PlainListItem}" />
+    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+  </Style>
+
+  <Style TargetType="Hyperlink">
+    <Setter Property="Foreground" Value="{StaticResource Clementine.AccentLight}" />
+    <Setter Property="TextDecorations" Value="{x:Null}" />
+    <Style.Triggers>
+      <Trigger Property="IsMouseOver" Value="True">
+        <Setter Property="TextDecorations" Value="Underline" />
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+
+  <sys:Double x:Key="Shell.ToastWidth">364</sys:Double>
+</ResourceDictionary>

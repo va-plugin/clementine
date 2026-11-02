@@ -1,0 +1,173 @@
+# Builds the solution and runs every test project on Windows.
+# Media tests need FFmpeg: the job installs the exact build that releases bundle (URL + SHA-256 pinned in publish.ps1).
+# LibreOffice isn't installed on the runner, so [LibreOfficeFact] tests are skipped; Edge and 7-Zip are on the image.
+#
+# Pull requests always get a run: one that only touches documentation skips the build and tests, and the final
+# "CI result" job still reports, so it can be made a required check. The Release workflow calls this workflow too,
+# so nothing is published from a commit whose tests fail.
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE', '.github/ISSUE_TEMPLATE/**']
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: '1'
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+
+defaults:
+  run:
+    # Windows PowerShell 5.1, the same shell build.ps1 and publish.ps1 are written and tested for.
+    shell: powershell
+
+jobs:
+  changes:
+    name: Changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v5
+        if: github.event_name == 'pull_request'
+        with:
+          # The pull request's merge commit and its parents: HEAD^1 is the base branch it merges into.
+          fetch-depth: 2
+
+      - name: Code or documentation only?
+        id: filter
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          code=true
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            files=$(git diff --name-only HEAD^1 HEAD)
+            code=false
+            while IFS= read -r file; do
+              case "$file" in
+                ''|*.md|docs/*|LICENSE|.github/ISSUE_TEMPLATE/*) ;;
+                *) code=true ;;
+              esac
+            done <<< "$files"
+          fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "Build and test needed: $code"
+
+  build:
+    name: Build
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', 'Directory.Build.props', 'dotnet-tools.json') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Build the solution
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1 build
+
+      - name: List every operation (smoke test of all engines)
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1 cli list
+
+  test:
+    name: Test ${{ matrix.project }}
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - Clementine.Core.Tests
+          - Clementine.Engines.Media.Tests
+          - Clementine.Engines.Images.Tests
+          - Clementine.Engines.Documents.Tests
+          - Clementine.Engines.Files.Tests
+          - Clementine.Wheel.Tests
+          - Clementine.App.Tests
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', 'Directory.Build.props', 'dotnet-tools.json') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Cache the FFmpeg download
+        uses: actions/cache@v4
+        with:
+          path: ~/AppData/Local/ClementineBuild/downloads/ffmpeg-*.7z
+          key: ffmpeg-${{ hashFiles('publish.ps1') }}
+
+      - name: Install FFmpeg (pinned, SHA-256 verified)
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File .github\scripts\install-ffmpeg.ps1
+
+      - name: Show tool versions
+        run: |
+          ffmpeg -hide_banner -version | Select-Object -First 1
+          dotnet --version
+
+      - name: Test
+        run: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1 test "tests\${{ matrix.project }}"
+          --logger "trx;LogFileName=${{ matrix.project }}.trx" --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.project }}
+          path: TestResults
+          if-no-files-found: ignore
+          retention-days: 14
+
+  result:
+    # The one check to require in branch protection: green when every job passed, or when build and test were
+    # skipped because only documentation changed.
+    name: CI result
+    if: always()
+    needs: [changes, build, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check the other jobs
+        shell: bash
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          for result in $RESULTS; do
+            case "$result" in
+              success|skipped) ;;
+              *) echo "::error::A CI job ended with '$result'."; exit 1 ;;
+            esac
+          done

@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <!-- CA1416: every project is Windows-only by design. -->
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+
+    <!-- Build output lives outside Dropbox so syncing never locks obj/bin files mid-build. -->
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <ArtifactsPath>$(LOCALAPPDATA)\ClementineBuild</ArtifactsPath>
+
+    <Version>0.1.2</Version>
+    <!-- GitHub repository whose Releases deliver updates, e.g. https://github.com/<owner>/clementine (empty = no update checks). -->
+    <ClementineUpdateRepo>https://github.com/va-plugin/clementine</ClementineUpdateRepo>
+    <Product>Clementine</Product>
+    <Company>Visual Artform</Company>
+    <Authors>Visual Artform</Authors>
+    <Copyright>© 2026 Visual Artform</Copyright>
+  </PropertyGroup>
+</Project>

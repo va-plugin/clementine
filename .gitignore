@@ -1,0 +1,48 @@
+# Build output. build.ps1 sends everything to %LOCALAPPDATA%\ClementineBuild (UseArtifactsOutput), but a plain
+# `dotnet build` or an IDE can still create these next to the projects.
+bin/
+obj/
+artifacts/
+publish/
+[Dd]ebug/
+[Rr]elease/
+*.nupkg
+*.snupkg
+
+# Velopack release feed written by publish.ps1 (full/delta packages, Setup.exe, Portable.zip, releases.*.json).
+/releases/
+/Releases/
+
+# Installer output (publish.ps1 writes to "..\Clementine Product", outside the repository; ignored here in case it
+# moves). The Release workflow reads the folder from publish.ps1's product_dir output, not from this layout.
+/Product/
+/Clementine Product/
+
+# Tests
+TestResults/
+*.trx
+coverage*.json
+coverage*.xml
+*.coverage
+
+# IDEs and editors
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userprefs
+*.DotSettings.user
+*.swp
+*~
+
+# Local tools and scratch
+.dotnet/
+.tools/
+*.log
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store

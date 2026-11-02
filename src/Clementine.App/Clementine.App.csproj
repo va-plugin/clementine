@@ -1,0 +1,76 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Clementine.App</RootNamespace>
+    <AssemblyName>Clementine</AssemblyName>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Program.Main forwards to a running instance before WPF starts (App.xaml's generated Main is not used). -->
+    <StartupObject>Clementine.App.Program</StartupObject>
+    <!-- Generated from the vector art in Branding/IconArt.cs (run Clementine.exe with make-icon and a folder). -->
+    <ApplicationIcon>assets\clementine.ico</ApplicationIcon>
+    <!-- WFO0003: DPI awareness is declared in app.manifest on purpose (WPF app; WinForms only hosts the tray icon). -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
+  </PropertyGroup>
+
+  <!-- WinForms is only here for the tray icon; keep its names out of every WPF file. -->
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Clementine.App.Tests" />
+  </ItemGroup>
+
+  <!--
+    The GitHub repository whose Releases deliver updates (<ClementineUpdateRepo> in Directory.Build.props), read by
+    Updates/UpdateSetup.cs. Empty = this build never checks for updates.
+  -->
+  <ItemGroup>
+    <AssemblyMetadata Include="ClementineUpdateRepo" Value="$(ClementineUpdateRepo)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\clementine.ico" />
+    <None Include="assets\*.png" />
+  </ItemGroup>
+
+  <!-- Licences of bundled libraries and optional external programs (shown from Settings > About). -->
+  <ItemGroup>
+    <Content Include="THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!--
+    Magick.NET ships a Notice.txt with the full licence text of ImageMagick and every native library it bundles
+    (some LGPL). Copy the one matching the restored package version to licenses\Magick.NET-Notice.txt.
+  -->
+  <Target Name="IncludeMagickNotice" BeforeTargets="AssignTargetPaths" DependsOnTargets="ResolvePackageAssets">
+    <ItemGroup>
+      <_ClementineMagickAsset Include="@(RuntimeCopyLocalItems)" Condition="'%(RuntimeCopyLocalItems.NuGetPackageId)' == 'Magick.NET-Q16-HDRI-AnyCPU'" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_ClementineMagickVersion>@(_ClementineMagickAsset-&gt;'%(NuGetPackageVersion)'-&gt;Distinct())</_ClementineMagickVersion>
+      <_ClementineMagickNotice>$(NuGetPackageRoot)magick.net-q16-hdri-anycpu\$(_ClementineMagickVersion)\Notice.txt</_ClementineMagickNotice>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(_ClementineMagickVersion)' != '' And Exists('$(_ClementineMagickNotice)')">
+      <None Include="$(_ClementineMagickNotice)" Link="licenses\Magick.NET-Notice.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Clementine.Core\Clementine.Core.csproj" />
+    <ProjectReference Include="..\Clementine.Wheel\Clementine.Wheel.csproj" />
+    <ProjectReference Include="..\Clementine.Engines.Media\Clementine.Engines.Media.csproj" />
+    <ProjectReference Include="..\Clementine.Engines.Images\Clementine.Engines.Images.csproj" />
+    <ProjectReference Include="..\Clementine.Engines.Documents\Clementine.Engines.Documents.csproj" />
+    <ProjectReference Include="..\Clementine.Engines.Files\Clementine.Engines.Files.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Velopack" Version="1.2.161" />
+  </ItemGroup>
+
+</Project>

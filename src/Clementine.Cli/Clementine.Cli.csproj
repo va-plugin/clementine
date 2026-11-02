@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Clementine.Cli</RootNamespace>
+    <AssemblyName>clementine-cli</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Clementine.Core\Clementine.Core.csproj" />
+    <ProjectReference Include="..\Clementine.Engines.Media\Clementine.Engines.Media.csproj" />
+    <ProjectReference Include="..\Clementine.Engines.Images\Clementine.Engines.Images.csproj" />
+    <ProjectReference Include="..\Clementine.Engines.Documents\Clementine.Engines.Documents.csproj" />
+    <ProjectReference Include="..\Clementine.Engines.Files\Clementine.Engines.Files.csproj" />
+  </ItemGroup>
+
+</Project>

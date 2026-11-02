@@ -1,0 +1,245 @@
+Clementine - third-party notices
+================================
+
+Clementine is free and open source under the MIT licence (see LICENSE in the source code).
+A Visual Artform product. Source code: https://github.com/va-plugin/clementine
+
+Clementine uses the open-source components listed below. Each one is the property of its authors and is
+used under the licence named here. Clementine itself does not change any of them.
+
+  Part 1  programs included with Clementine (FFmpeg, 7-Zip)
+  Part 2  libraries inside Clementine
+  Part 3  programs Clementine uses when they are on this PC, but does not include (LibreOffice, Edge)
+  Part 4  licence texts
+
+The licences folder next to Clementine.exe ("licenses") holds the full licence texts that ship with the
+bundled programs and libraries.
+
+
+PART 1 - PROGRAMS INCLUDED WITH CLEMENTINE
+------------------------------------------
+
+These are separate programs in the "tools" folder next to Clementine.exe. Clementine starts them as their
+own processes; they are not linked into Clementine. Each stays under its own licence, and you may replace
+them with other builds (Settings > Tools > Choose...).
+
+FFmpeg 8.1.2 (ffmpeg.exe, ffprobe.exe and their DLLs in tools\ffmpeg\bin)
+  Use:      every video and audio conversion and tool (including DXV, HAP and ProRes)
+  Build:    "full_build-shared" by Gyan Doshi (https://www.gyan.dev/ffmpeg/builds/)
+  Licence:  GNU General Public License version 3 (this build includes GPL-licensed libraries)
+            - licenses\FFmpeg-LICENSE.txt
+  Libraries: the external libraries in this build, and how it was configured, are listed in
+            licenses\FFmpeg-BUILD-README.txt; each keeps its own licence.
+  Source:   licenses\FFmpeg-SOURCE.txt says where the corresponding source comes from. The source code of
+            FFmpeg 8.1.2 (ffmpeg-8.1.2.tar.xz) is attached to every Clementine release on GitHub:
+            https://github.com/va-plugin/clementine/releases
+            The external libraries are compiled into the FFmpeg DLLs; FFmpeg-BUILD-README.txt lists the
+            version of each one ("external libraries' versions").
+  Offer:    For at least three years after the last Clementine release that includes this FFmpeg build,
+            Visual Artform will give anyone who asks a complete copy of its corresponding source, as the GNU
+            GPL version 3 defines it (FFmpeg and every external library in the build, at the versions listed
+            in FFmpeg-BUILD-README.txt), free of charge as a download. To ask, open an issue titled
+            "FFmpeg source request" at https://github.com/va-plugin/clementine/issues
+  Link:     https://ffmpeg.org - https://ffmpeg.org/legal.html
+  FFmpeg is a trademark of Fabrice Bellard, originator of the FFmpeg project.
+
+7-Zip 25.01 (7za.exe, the standalone console version, in tools\7zip)
+  Use:      writing .7z archives; a fallback for reading archives
+  Author:   Igor Pavlov
+  Licence:  GNU LGPL-2.1 or later, with BSD-3-Clause parts (zstd decoder) and BSD-2-Clause parts (XXH64)
+            - licenses\7-Zip-License.txt
+  Source:   the source code of 7-Zip 25.01 (7z2501-src.7z) is attached to every Clementine release on GitHub:
+            https://github.com/va-plugin/clementine/releases
+  Link:     https://www.7-zip.org - https://www.7-zip.org/license.txt
+
+
+PART 2 - LIBRARIES INSIDE CLEMENTINE
+------------------------------------
+
+Magick.NET (Magick.NET-Q16-HDRI-AnyCPU, Magick.NET.Core)
+  Use:      image conversions and tools, including PSD/PSB
+  Licence:  Apache-2.0
+  Author:   Dirk Lemstra and contributors
+  Link:     https://github.com/dlemstra/Magick.NET
+
+  ImageMagick (inside Magick.NET's native library)
+    Licence:  ImageMagick License (Apache-2.0 style) - https://imagemagick.org/license/
+    Link:     https://imagemagick.org
+
+  Native libraries bundled by Magick.NET, each under its own licence. The libraries marked LGPL are
+  dynamically loaded as part of Magick.NET's native DLL (Magick.Native-*.dll), which can be replaced with a
+  rebuilt copy. Their source code is available from the projects below and from
+  https://github.com/ImageMagick (ImageMagick's Windows build dependencies).
+    aom (BSD-2-Clause) - brotli (MIT) - bzip2 (bzip2 licence) - cairo (LGPL-2.1 or MPL-1.1)
+    libcroco (LGPL-2) - libde265 (LGPL-3.0) - OpenEXR / Imath (BSD-3-Clause) - libffi (MIT)
+    fontconfig (MIT style) - FreeType (FreeType licence) - FriBidi (LGPL-2.1) - gdk-pixbuf (LGPL-2.1)
+    GLib (LGPL-2.1) - HarfBuzz (Old MIT) - libheif (LGPL-3.0) - Highway (Apache-2.0)
+    libjpeg-turbo (IJG / BSD-3-Clause) - libjxl (BSD-3-Clause) - Little CMS (MIT) - liblqr (LGPL-3.0)
+    liblzma (LGPL-2.1 as packaged) - OpenH264 (BSD-2-Clause) - OpenJPEG (BSD-2-Clause)
+    OpenJPH (BSD-2-Clause) - Pango (LGPL-2) - pixman (MIT) - libpng (PNG Reference Library License v2)
+    libraqm (MIT) - LibRaw (LGPL-2.1 or CDDL-1.0) - librsvg (LGPL-2) - LibTIFF (libtiff licence)
+    libwebp (BSD-3-Clause) - libxml2 (MIT) - libzip (BSD-3-Clause) - zlib (zlib licence)
+    Zstandard (BSD-3-Clause)
+  The complete Magick.NET notice, with the full licence text of every library above, is installed next to
+  this file as licenses\Magick.NET-Notice.txt.
+
+PDFsharp
+  Use:      creating, merging, splitting, rotating and encrypting PDF files
+  Licence:  MIT
+  Author:   empira Software GmbH and contributors
+  Link:     https://docs.pdfsharp.net/ - https://github.com/empira/PDFsharp
+
+PdfPig
+  Use:      reading text from PDF files
+  Licence:  Apache-2.0
+  Author:   the PdfPig contributors
+  Link:     https://github.com/UglyToad/PdfPig
+
+PDFtoImage
+  Use:      rendering PDF pages to images
+  Licence:  MIT
+  Author:   David Sungaila
+  Link:     https://github.com/sungaila/PDFtoImage
+
+PDFium (bblanchon.PDFium binaries)
+  Use:      the PDF renderer behind PDFtoImage
+  Licence:  Apache-2.0 / BSD-3-Clause (PDFium); its bundled FreeType, ICU, libjpeg-turbo, Little CMS,
+            OpenJPEG and zlib keep their own permissive licences
+  Author:   The PDFium Authors; binaries by Benoit Blanchon
+  Link:     https://pdfium.googlesource.com/pdfium/ - https://github.com/bblanchon/pdfium-binaries
+
+SkiaSharp (with the Skia graphics library)
+  Use:      bitmaps for PDF rendering
+  Licence:  MIT (SkiaSharp); BSD-3-Clause (Skia)
+  Author:   Microsoft Corporation and contributors; Google Inc. (Skia)
+  Link:     https://github.com/mono/SkiaSharp - https://skia.org
+
+Open XML SDK (DocumentFormat.OpenXml)
+  Use:      reading and writing Word, Excel and PowerPoint files (Word and Excel to PDF and HTML are built in)
+  Licence:  MIT
+  Author:   .NET Foundation and contributors
+  Link:     https://github.com/dotnet/Open-XML-SDK
+
+Markdig
+  Use:      Markdown to HTML, PDF and DOCX
+  Licence:  BSD-2-Clause
+  Author:   Alexandre Mutel
+  Link:     https://github.com/xoofx/markdig
+
+AngleSharp
+  Use:      reading HTML and EPUB content
+  Licence:  MIT
+  Author:   AngleSharp contributors
+  Link:     https://github.com/AngleSharp/AngleSharp
+
+SharpCompress
+  Use:      reading RAR, 7z, bzip2, xz and zstd archives
+  Licence:  MIT
+  Author:   Adam Hathcock and contributors
+  Link:     https://github.com/adamhathcock/sharpcompress
+
+YamlDotNet
+  Use:      JSON <-> YAML
+  Licence:  MIT
+  Author:   Antoine Aubry and contributors
+  Link:     https://github.com/aaubry/YamlDotNet
+
+ZXing.Net
+  Use:      reading QR codes and barcodes
+  Licence:  Apache-2.0
+  Author:   the ZXing.Net authors (port of ZXing by the ZXing authors)
+  Link:     https://github.com/micjahn/ZXing.Net
+
+Velopack (the Velopack library, and its Update.exe and Setup.exe in an installed copy)
+  Use:      the installer (install, update and uninstall) and updates: an installed Clementine asks
+            Clementine's GitHub Releases (https://github.com/va-plugin/clementine/releases) for a newer
+            version a minute after it starts and every 6 hours, downloads it in the background and installs it
+            when you choose "Restart to update". No account, token or personal data is sent. Turn the automatic
+            check off in Settings > General.
+  Licence:  MIT
+  Author:   Velopack Ltd, Caelan Sayler, Kevin Bost
+  Link:     https://github.com/velopack/velopack
+
+.NET runtime and libraries (Microsoft.Extensions.*, System.IO.Hashing, WPF, Windows Forms)
+  Licence:  MIT
+  Author:   .NET Foundation and contributors
+  Link:     https://github.com/dotnet/runtime - https://github.com/dotnet/wpf
+
+
+PART 3 - PROGRAMS CLEMENTINE USES WHEN THEY ARE ON THIS PC (NOT INCLUDED)
+-------------------------------------------------------------------------
+
+Clementine starts these programs as separate processes when they are installed. It does not include,
+link against or modify them; each is covered by its own licence, which you accepted when installing it.
+
+LibreOffice (optional)
+  Use:      PowerPoint to PDF and images, older and OpenDocument formats (.doc, .xls, .ppt, .odt, .ods,
+            .odp, .rtf...) and conversions between Office formats. Word (DOCX) and Excel (XLSX) files
+            convert without it.
+  Licence:  MPL-2.0 (and others for some parts)
+  Link:     https://www.libreoffice.org/about-us/licenses/
+
+Microsoft Edge (part of Windows)
+  Use:      printing HTML, Markdown, e-books and Clementine's Word and Excel conversions to PDF
+            (headless, with a throw-away profile and all network requests blocked)
+  Licence:  Microsoft software licence terms (part of Windows)
+  Link:     https://www.microsoft.com/edge
+
+
+PART 4 - LICENCE TEXTS
+----------------------
+
+MIT License
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+  associated documentation files (the "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+  following conditions:
+
+  The above copyright notice and this permission notice shall be included in all copies or substantial
+  portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+  LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+  EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+  USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+BSD 2-Clause License (Markdig, parts of 7-Zip and others)
+  Redistribution and use in source and binary forms, with or without modification, are permitted provided
+  that the following conditions are met:
+  1. Redistributions of source code must retain the above copyright notice, this list of conditions and the
+     following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+     the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+  PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
+  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  POSSIBILITY OF SUCH DAMAGE.
+
+BSD 3-Clause License (Skia, PDFium, parts of 7-Zip and others)
+  The BSD 2-Clause terms above, plus:
+  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or
+     promote products derived from this software without specific prior written permission.
+
+Apache License 2.0 (Magick.NET, PdfPig, ZXing.Net, PDFium and others)
+  Licensed under the Apache License, Version 2.0 (the "License"); you may not use these components except in
+  compliance with the License. You may obtain a copy of the License at
+  https://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software distributed under the License is
+  distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and limitations under the License.
+  The full text of the Apache License 2.0 is also included in licenses\Magick.NET-Notice.txt.
+
+GNU GPL version 3 (FFmpeg)
+  The full text is in licenses\FFmpeg-LICENSE.txt and at https://www.gnu.org/licenses/gpl-3.0.html
+
+GNU LGPL (7-Zip, and native libraries bundled by Magick.NET)
+  The full texts of the LGPL versions that apply are included in licenses\7-Zip-License.txt and
+  licenses\Magick.NET-Notice.txt, and at https://www.gnu.org/licenses/lgpl-3.0.html and
+  https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html

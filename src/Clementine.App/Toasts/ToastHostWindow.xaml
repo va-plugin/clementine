@@ -1,0 +1,11 @@
+<Window x:Class="Clementine.App.Toasts.ToastHostWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Clementine notifications"
+        SizeToContent="WidthAndHeight"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" ShowActivated="False" Topmost="True"
+        WindowStartupLocation="Manual" Left="-32000" Top="-32000">
+  <!-- Margin leaves room for the cards' drop shadows. -->
+  <StackPanel x:Name="Cards" Margin="28,20,28,28" VerticalAlignment="Bottom" />
+</Window>

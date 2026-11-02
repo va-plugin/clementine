@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Clementine.Engines.Files</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- CS1591: internal helpers are documented where it helps; only the public surface must be. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Clementine.Core\Clementine.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- All MIT licensed. -->
+    <PackageReference Include="SharpCompress" Version="0.50.4" />
+    <PackageReference Include="System.IO.Hashing" Version="10.0.12" />
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Clementine.Engines.Files.Tests" />
+  </ItemGroup>
+
+</Project>

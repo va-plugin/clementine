@@ -1,0 +1,193 @@
+# Publishes a GitHub release when a version tag is pushed:  git tag v0.2.0 && git push origin v0.2.0
+#
+#   1. runs the full CI workflow (build + every test project) on the tagged commit; nothing is published if it fails
+#   2. checks the tag and Directory.Build.props (<Version>, <ClementineUpdateRepo>)
+#   3. fetches the source code of the bundled FFmpeg and 7-Zip versions (pinned SHA-256)
+#   4. downloads the previous release's feed so Velopack can build a delta package
+#   5. runs publish.ps1 (self-contained build + bundled FFmpeg/7-Zip + vpk pack)
+#   6. uploads Setup.exe, Portable.zip, the .nupkg packages and the release feed with vpk upload github, as a DRAFT
+#   7. adds the friendly names the README links to (Clementine-Setup.exe, Clementine-Portable.zip) and the
+#      FFmpeg and 7-Zip source archives to the draft
+#   8. checks the draft has every file, then publishes it
+#
+# Nothing is public until step 8: a draft is invisible to anonymous readers, so installed copies (which read the
+# releases without a token) never see a release that lacks its installer names or the GPL/LGPL source archives.
+# If a run fails after step 6, delete the draft release on GitHub before pushing the tag again.
+#
+# Tags with a suffix (v0.2.0-beta.1) become pre-releases.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: '1'
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  # vpk targets an older .NET; let it run on .NET 10 (publish.ps1 sets the same).
+  DOTNET_ROLL_FORWARD: Major
+
+defaults:
+  run:
+    shell: powershell
+
+jobs:
+  # A release published by hand (publish.ps1 + vpk upload + gh release) creates its tag on GitHub, which also
+  # triggers this workflow. Skip any tag whose release is already published instead of building it again.
+  check:
+    name: Already released?
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      published: ${{ steps.release.outputs.published }}
+    steps:
+      - id: release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+        run: |
+          draft=$(gh release view "$RELEASE_TAG" --repo "$RELEASE_REPOSITORY" --json isDraft --jq '.isDraft' 2>/dev/null || true)
+          if [ "$draft" = "false" ]; then
+            echo "Release $RELEASE_TAG is already published; nothing to do."
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  ci:
+    name: CI
+    needs: check
+    if: needs.check.outputs.published != 'true'
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
+  release:
+    name: Release ${{ github.ref_name }}
+    needs: [check, ci]
+    if: needs.check.outputs.published != 'true'
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Check the tag and Directory.Build.props
+        id: info
+        # The tag arrives through the environment, never pasted into the script; later steps only use the
+        # validated outputs (version is digits, letters, dots and dashes).
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          RELEASE_SERVER: ${{ github.server_url }}
+        run: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -File .github\scripts\release-info.ps1
+          -Tag $env:RELEASE_TAG -Repository $env:RELEASE_REPOSITORY -ServerUrl $env:RELEASE_SERVER
+
+      - name: Cache the FFmpeg and 7-Zip downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/AppData/Local/ClementineBuild/downloads/*.7z
+            ~/AppData/Local/ClementineBuild/downloads/*.tar.xz
+          key: bundles-${{ hashFiles('publish.ps1', '.github/scripts/release-sources.ps1') }}
+
+      - name: Fetch the source of the bundled FFmpeg and 7-Zip (pinned, SHA-256 verified)
+        run: >-
+          powershell -NoProfile -ExecutionPolicy Bypass -File .github\scripts\release-sources.ps1
+          -OutputDirectory "$env:RUNNER_TEMP\clementine-sources"
+
+      - name: Restore local tools (vpk)
+        run: |
+          dotnet tool restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Download the previous release (for delta packages)
+        # The first release has nothing to download; a failure here only means no delta package.
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $vpkArgs = @('vpk', 'download', 'github', '--outputDir', 'releases',
+              '--repoUrl', '${{ steps.info.outputs.repo_url }}', '--token', $env:GITHUB_TOKEN)
+          if ('${{ steps.info.outputs.prerelease }}' -eq 'true') { $vpkArgs += '--pre' }
+          & dotnet @vpkArgs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build the installer (publish.ps1)
+        id: publish
+        # publish.ps1 writes product_dir (where Clementine-Setup.exe and Clementine-Portable.zip are) to $GITHUB_OUTPUT.
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File .\publish.ps1 -Version "${{ steps.info.outputs.version }}"
+
+      - name: Upload to a draft GitHub release (vpk)
+        # No --publish: vpk leaves the release as a draft until every file is attached (last step).
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $vpkArgs = @('vpk', 'upload', 'github', '--outputDir', 'releases',
+              '--repoUrl', '${{ steps.info.outputs.repo_url }}', '--token', $env:GITHUB_TOKEN,
+              '--releaseName', 'Clementine ${{ steps.info.outputs.version }}', '--tag', 'v${{ steps.info.outputs.version }}')
+          if ('${{ steps.info.outputs.prerelease }}' -eq 'true') { $vpkArgs += '--pre' }
+          & dotnet @vpkArgs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Add Clementine-Setup.exe, Clementine-Portable.zip and the FFmpeg and 7-Zip source to the draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRODUCT_DIR: ${{ steps.publish.outputs.product_dir }}
+        run: |
+          $product = $env:PRODUCT_DIR
+          if (-not $product) { throw 'publish.ps1 reported no product_dir.' }
+          $files = @('Clementine-Setup.exe', 'Clementine-Portable.zip') | ForEach-Object { Join-Path $product $_ }
+          foreach ($file in $files) { if (-not (Test-Path $file)) { throw "publish.ps1 left no $(Split-Path $file -Leaf) in $product." } }
+          # @(...) keeps a single match an array; splatting a lone string would pass it character by character.
+          $sources = @(Get-ChildItem (Join-Path $env:RUNNER_TEMP 'clementine-sources') -File | ForEach-Object { $_.FullName })
+          if ($sources.Count -eq 0) { throw 'The FFmpeg and 7-Zip source archives are missing.' }
+          $files = @($files) + $sources
+          gh release upload 'v${{ steps.info.outputs.version }}' @files --clobber --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Check the draft has every file, then publish it
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = 'v${{ steps.info.outputs.version }}'
+          $json = gh release view $tag --repo $env:GITHUB_REPOSITORY --json assets,isDraft
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $release = ($json -join "`n") | ConvertFrom-Json
+          $names = @($release.assets | ForEach-Object { $_.name })
+          $sources = @(Get-ChildItem (Join-Path $env:RUNNER_TEMP 'clementine-sources') -File | ForEach-Object { $_.Name })
+          $required = @('Clementine-Setup.exe', 'Clementine-Portable.zip', 'releases.win.json') + $sources
+          $missing = @($required | Where-Object { $names -notcontains $_ })
+          if ($missing.Count -gt 0) { throw "The draft release $tag lacks $($missing -join ', '); not publishing it." }
+          if (-not @($names | Where-Object { $_ -like '*-full.nupkg' })) { throw "The draft release $tag has no full .nupkg; not publishing it." }
+          if (-not $release.isDraft) { Write-Host "::warning::$tag was already public before its files were checked." }
+          gh release edit $tag --draft=false --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Write-Host "Published $tag with $($names.Count) files."
+
+      - name: Keep the build output if something failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clementine-${{ github.ref_name }}
+          path: |
+            releases/*-Setup.exe
+            releases/*-Portable.zip
+            releases/*.nupkg
+            releases/releases.*.json
+          if-no-files-found: ignore
+          retention-days: 7

@@ -1,0 +1,72 @@
+<Window x:Class="Clementine.App.Options.OptionsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Clementine options"
+        Width="448" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True"
+        WindowStartupLocation="Manual">
+  <Border x:Name="Card" Style="{StaticResource Shell.Popover}" Margin="24">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <!-- Header (drag to move) -->
+      <Grid x:Name="Header" Margin="20,18,12,0" Background="Transparent">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Border Width="38" Height="38" CornerRadius="9" Background="{StaticResource Shell.AccentSoft}" VerticalAlignment="Top">
+          <TextBlock x:Name="IconGlyph" Style="{StaticResource Shell.Glyph}" FontSize="18" Foreground="{StaticResource Clementine.AccentLight}" />
+        </Border>
+        <StackPanel Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center">
+          <TextBlock x:Name="TitleText" Style="{StaticResource Shell.Heading}" FontSize="16" TextTrimming="CharacterEllipsis" />
+          <TextBlock x:Name="SubtitleText" Style="{StaticResource Shell.Caption}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="0,1,0,0" />
+        </StackPanel>
+        <Button x:Name="CloseButton" Grid.Column="2" Style="{StaticResource Shell.IconButton}" Content="&#xE8BB;" VerticalAlignment="Top"
+                ToolTip="Cancel (Esc)" IsTabStop="False" />
+      </Grid>
+
+      <TextBlock x:Name="DescriptionText" Grid.Row="1" Style="{StaticResource Shell.Caption}" Margin="20,12,20,0" Visibility="Collapsed" />
+
+      <Border Grid.Row="2" Height="1" Background="{StaticResource Shell.Divider}" Margin="0,16,0,0" />
+
+      <ScrollViewer Grid.Row="3" x:Name="FieldsScroller" MaxHeight="640" VerticalScrollBarVisibility="Auto" Focusable="False" Padding="20,18,20,2">
+        <StackPanel>
+          <StackPanel x:Name="FieldsPanel" />
+          <Border x:Name="PreviewBox" Background="{StaticResource Shell.Input}" BorderBrush="{StaticResource Shell.CardStroke}" BorderThickness="1"
+                  CornerRadius="6" Padding="12,9" Margin="0,0,0,16" Visibility="Collapsed">
+            <StackPanel>
+              <TextBlock Text="Preview" Style="{StaticResource Shell.Caption}" FontWeight="SemiBold" Margin="0,0,0,4" />
+              <TextBlock x:Name="PreviewText" FontFamily="{StaticResource Shell.MonoFont}" FontSize="12" Foreground="{StaticResource Clementine.Text}"
+                         TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- Footer -->
+      <Border Grid.Row="4" Background="#0AFFFFFF" CornerRadius="0,0,10,10" BorderBrush="{StaticResource Shell.Divider}" BorderThickness="0,1,0,0">
+        <Grid Margin="20,12,20,14">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <Button x:Name="ResetButton" Style="{StaticResource Shell.LinkButton}" Content="Reset" VerticalAlignment="Center" Margin="-6,0,0,0"
+                  ToolTip="Back to the values this dialog opened with" Foreground="{StaticResource Clementine.TextSecondary}" FontWeight="Normal" />
+          <Button Grid.Column="2" x:Name="CancelButton" Content="Cancel" MinWidth="88" Margin="0,0,8,0" ToolTip="Esc" />
+          <Button Grid.Column="3" x:Name="ConfirmButton" Style="{StaticResource Shell.PrimaryButton}" Content="Convert" MinWidth="100" ToolTip="Enter" />
+        </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</Window>

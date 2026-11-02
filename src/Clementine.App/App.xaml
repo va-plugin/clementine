@@ -1,0 +1,13 @@
+<Application x:Class="Clementine.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnExplicitShutdown">
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <!-- Shell.xaml merges the shared palette (Clementine.Wheel/Themes/Colors.xaml) first. -->
+        <ResourceDictionary Source="pack://application:,,,/Clementine;component/Theme/Shell.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+</Application>

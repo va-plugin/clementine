@@ -1,0 +1,51 @@
+# Normalise text files to LF in the repository and in working copies, on every OS and whatever core.autocrlf says.
+# (The sources already use LF; Visual Studio, PowerShell and MSBuild all read LF files fine.)
+* text=auto eol=lf
+
+*.cs          text eol=lf diff=csharp
+*.xaml        text eol=lf
+*.csproj      text eol=lf
+*.props       text eol=lf
+*.targets     text eol=lf
+*.sln         text eol=lf
+*.slnx        text eol=lf
+*.manifest    text eol=lf
+*.config      text eol=lf
+*.json        text eol=lf
+*.yml         text eol=lf
+*.yaml        text eol=lf
+*.md          text eol=lf diff=markdown
+*.txt         text eol=lf
+*.ps1         text eol=lf
+*.psm1        text eol=lf
+*.editorconfig text eol=lf
+LICENSE       text eol=lf
+
+# Windows batch files only work reliably with CRLF.
+*.cmd         text eol=crlf
+*.bat         text eol=crlf
+
+# Binary files: never touch line endings, never diff as text.
+*.png         binary
+*.jpg         binary
+*.jpeg        binary
+*.gif         binary
+*.webp        binary
+*.ico         binary
+*.icns        binary
+*.pdf         binary
+*.7z          binary
+*.zip         binary
+*.gz          binary
+*.nupkg       binary
+*.exe         binary
+*.dll         binary
+*.ttf         binary
+*.otf         binary
+*.woff        binary
+*.woff2       binary
+*.mp4         binary
+*.mov         binary
+*.wav         binary
+*.mp3         binary
+*.psd         binary
