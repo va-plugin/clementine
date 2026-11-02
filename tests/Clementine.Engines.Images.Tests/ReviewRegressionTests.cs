@@ -242,7 +242,8 @@ public class ReviewRegressionTests
         Assert.InRange(memory, ram / 2, ram * 7 / 10);
         // Room for two full copies of the largest image allowed, yet never the tens of GB a bomb asks for.
         Assert.Equal((ulong)MagickRuntime.MaxPixels * 32, MagickRuntime.DiskLimit);
-        Assert.InRange(MagickRuntime.DiskLimit, 8UL << 30, 32UL << 30);
+        // MaxPixels is clamped to 250 MP..1 GP (16 bytes a pixel, two copies), whatever the machine's RAM.
+        Assert.InRange(MagickRuntime.DiskLimit, 8_000_000_000UL, 32_000_000_000UL);
     }
 
     [Fact]

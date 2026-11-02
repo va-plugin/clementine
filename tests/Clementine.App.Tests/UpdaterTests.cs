@@ -563,7 +563,10 @@ public class UpdateUiTests
             Assert.True(check.IsEnabled);
             check.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
         });
-        await WaitForUi(() => window.ShownUpdateStatus == "Clementine 0.1.3 is ready — restart to update");
+        // Wait for the whole Ready state (status and button), not just the text: on a slow machine the check's own
+        // continuation can repaint the card once more after the status first reads "ready".
+        await WaitForUi(() => window.ShownUpdateStatus == "Clementine 0.1.3 is ready — restart to update"
+            && Buttons(window).Single(b => Equals(b.Content, "Restart to update")).Visibility == Visibility.Visible);
         WpfHost.Run(() =>
         {
             var restart = Buttons(window).Single(b => Equals(b.Content, "Restart to update"));
